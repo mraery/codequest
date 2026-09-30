@@ -16,6 +16,7 @@
   <img src="https://img.shields.io/badge/Questions-16%2C000_Interactive-brightgreen" alt="16000 Questions" />
   <img src="https://img.shields.io/badge/Explanations-100%25_Detailed-success" alt="100% Explanations" />
   <img src="https://img.shields.io/badge/Platform-Android_&_Cross--Platform-orange" alt="Platform" />
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License" />
 </p>
 
 ---
@@ -48,31 +49,29 @@ Uygulamada her biri **8 Ünite**, ünite başına **8 Ders** ve ders başına **
 
 ---
 
-## 💡 İnteraktif Soru Tipleri
+## 💡 25 Soruluk Zengin Ders Formatı
 
-Her ders, derinlemesine kavratıcı 5 farklı soru tipiyle zenginleştirilmiştir:
-1. **Hap Bilgi (Concept Card):** Mimar kuralı, gerçek kod örneği, Byte geliştirici tavsiyesi.
-2. **Çoktan Seçmeli Senaryo Sorusu:** Kod çıktısı tahminleme, mantık hataları ve teknik mülakat senaryoları.
-3. **Boşluk Doldurma (Fill-in-the-Blank):** Kod bloklarında eksik sözdizimini tamamlama.
-4. **Doğru / Yanlış:** Sektör pratikleri ve best-practice denetimi.
-5. **Eşleştirme (Matching Pairs):** Komut-görev, metot-açıklama eşleştirmeleri.
+Her ders, derinlemesine kavratıcı 5 farklı interaktif soru tipiyle zenginleştirilmiştir:
+1. **1x Hap Bilgi (Concept Card):** Mimar kuralı, gerçek kod örneği, Byte geliştirici tavsiyesi ve konu özeti.
+2. **16x Çoktan Seçmeli Senaryo Sorusu:** Kod çıktısı tahminleme, mantık hataları, bellek yönetimi ve mülakat senaryoları (Şıklar rastgele A, B, C, D olarak dağıtılmıştır).
+3. **4x Boşluk Doldurma (Fill-in-the-Blank):** Kod bloklarında eksik anahtar sözcüğü veya operatörü tamamlama.
+4. **2x Doğru / Yanlış:** Sektör pratikleri ve mimari kural denetimi.
+5. **2x Eşleştirme (Matching Pairs):** Kavram-tanım ve komut-çıktı eşleştirmeleri.
 
 ---
 
-## ✨ Özellikler
+## ✨ Öne Çıkan Özellikler
 
 - **Offline-First Mimari:** Tüm sorular ve müfredat cihazda çevrimdışı çalışır, internet gerektirmez.
 - **Byte Mascot Koçu:** Her patikada yazılımcıyı motive eden, ipuçları veren yapay zeka rehberi.
 - **Hile Kağıtları (Cheat Sheets):** Her üniteye ait hızlı başvuru kod kartları.
-- **Code Playground:** 10 farklı dil için önceden hazırlanmış şablonlarla interaktif kod deneme alanı.
+- **Code Playground:** 10 farklı dil için önceden hazırlanmış şablonlarla interaktif kod deneme konsolu.
 - **Oyunlaştırma & Başarımlar:** Günlük seri (streak), can sistemi, seviye atlama ve başarım ödülleri.
 - **Modern Karanlık Tema:** Yazılımcı gözünü yormayan derin IDE renk paleti (Slate / Midnight Navy).
 
 ---
 
 ## 🛠️ Kurulum & Çalıştırma
-
-Projeyi yerel ortamınızda çalıştırmak için:
 
 ```bash
 # Depoyu klonlayın
@@ -92,15 +91,6 @@ flutter run
 flutter build apk --release
 ```
 Derlenen APK dosyası `build/app/outputs/flutter-apk/app-release.apk` dizininde oluşur.
-
----
-
-## 🏗️ Mimari & Teknolojiler
-
-- **UI Framework:** Flutter (Dart)
-- **State Management:** Riverpod (`flutter_riverpod`)
-- **Tasarım & Tipografi:** Google Fonts (JetBrains Mono & Poppins), Smooth Duolingo-style Animations
-- **Depolama:** SharedPreferences (Kullanıcı ilerlemesi, canlar, elmaslar)
 
 ---
 
