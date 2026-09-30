@@ -227,7 +227,7 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       SizedBox(height: 3),
                       Text(
-                        'v1.0.0 Pro • 10 Patika • 11.520 Soru',
+                        'v1.1.0 Mega • 10 Patika • 16.000 Soru & Açıklama',
                         style: TextStyle(
                           color: Color(0xFF94A3B8),
                           fontSize: 12,

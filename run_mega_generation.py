@@ -12,7 +12,7 @@ import mega_track_specs_part2 as s2
 import mega_track_specs_part3 as s3
 import mega_track_specs_part4 as s4
 from track_generator_engine import write_curriculum_file
-from question_bank_builder import generate_lesson_questions
+from mega_question_factory import generate_lesson_questions_v2
 
 BASE_DIR = r"C:\Users\roy\.gemini\antigravity\scratch\codequest\lib\data"
 
@@ -32,13 +32,14 @@ def generate_mega_track(track_name, cfg):
         lessons_list = []
         for l_idx, (l_title, l_desc, topic, is_exam) in enumerate(u["lessons"]):
             lesson_id = f"{u['id']}_l{l_idx+1}"
-            questions = generate_lesson_questions(
+            questions = generate_lesson_questions_v2(
                 track=track_name,
                 unit_num=u["unitNumber"],
                 lesson_num=l_idx+1,
                 lesson_id=lesson_id,
                 topic=topic,
                 title=l_title,
+                desc=l_desc,
                 is_exam=is_exam
             )
             total_q += len(questions)
