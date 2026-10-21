@@ -17,7 +17,6 @@ void main() {
 
     // Verify Tab labels are displayed
     expect(find.text('Patika'), findsOneWidget);
-    expect(find.text('Laboratuvar'), findsOneWidget);
     expect(find.text('Pratik'), findsOneWidget);
     expect(find.text('Liderlik'), findsOneWidget);
     expect(find.text('Profil'), findsOneWidget);

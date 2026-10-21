@@ -9,6 +9,7 @@ import '../widgets/byte_mascot_widget.dart';
 import '../widgets/code_path_node.dart';
 import '../widgets/cheat_sheet_sheet.dart';
 import 'quiz_screen.dart';
+import 'dev_reflex_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -79,6 +80,78 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 );
               },
+            ),
+          ),
+
+          // Görünce Yapıştır! ⚡ Kesin Bilmen Gerekenler Hızlı Banner
+          SliverToBoxAdapter(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1E1B4B), Color(0xFF0F172A)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.5), width: 1.2),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Text('⚡', style: TextStyle(fontSize: 22)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Görünce Yapıştır! ⚡',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '10.000+ Soru & Kesin Bilmen Gerekenler',
+                          style: TextStyle(
+                            color: Colors.grey.shade400,
+                            fontSize: 11.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF59E0B),
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const DevReflexScreen()),
+                      );
+                    },
+                    child: const Text(
+                      'OYNA ⚡',
+                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 

@@ -3,11 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_provider.dart';
 import '../widgets/stats_bar.dart';
 
-class ProfileScreen extends ConsumerWidget {
+import '../models/curriculum_models.dart';
+
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  String _selectedCategory = 'Tümü';
+
+  @override
+  Widget build(BuildContext context) {
     final profile = ref.watch(userProfileProvider);
     final achievements = ref.watch(achievementsProvider);
 
@@ -76,6 +85,60 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
+          const SizedBox(height: 18),
+
+          // Promo Code Banner
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: profile.isCheatUnlocked
+                    ? [const Color(0xFF7C3AED), const Color(0xFF4C1D95)]
+                    : [const Color(0xFF1E293B), const Color(0xFF0F172A)],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: profile.isCheatUnlocked ? Colors.amber : const Color(0xFF334155),
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  profile.isCheatUnlocked ? Icons.stars_rounded : Icons.card_giftcard_rounded,
+                  color: profile.isCheatUnlocked ? Colors.amber : const Color(0xFFA855F7),
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        profile.isCheatUnlocked ? '🔥 Kagan Hile Modu Aktif' : 'Promosyon & Hile Kodu',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      Text(
+                        profile.isCheatUnlocked
+                            ? 'Sınırsız Can, 300 Elmas ve OTO-ÇÖZ açık'
+                            : 'Özel kodunu girerek avantajları kap',
+                        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFA855F7),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () => _showPromoDialog(context),
+                  child: Text(profile.isCheatUnlocked ? 'Yönet' : 'Kod Gir'),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
 
           // Language Masteries
@@ -112,16 +175,87 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 28),
 
           // Achievements List
-          const Text(
-            'Başarımlar & Rozetler',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Başarımlar & Rozetler',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+                ),
+                child: Text(
+                  '${achievements.where((a) => a.isUnlocked).length} / ${achievements.length} 🏆',
+                  style: const TextStyle(
+                    color: Color(0xFF34D399),
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Kategori Filtreleme Çipleri
+          SizedBox(
+            height: 36,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                'Tümü',
+                'Dersler',
+                'XP',
+                'Elmas',
+                'Seri',
+                'Diller',
+                'Özel',
+              ].map((cat) {
+                final isSelected = (_selectedCategory == cat);
+                return Padding(
+                  padding: const EdgeInsets.only(right: 6.0),
+                  child: FilterChip(
+                    label: Text(cat),
+                    selected: isSelected,
+                    backgroundColor: const Color(0xFF1E293B),
+                    selectedColor: const Color(0xFF0284C7),
+                    labelStyle: TextStyle(
+                      color: isSelected ? Colors.white : Colors.white70,
+                      fontSize: 11.5,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    onSelected: (val) {
+                      setState(() {
+                        _selectedCategory = cat;
+                      });
+                    },
+                  ),
+                );
+              }).toList(),
             ),
           ),
           const SizedBox(height: 12),
-          ...achievements.map((ach) {
+
+          ...achievements.where((ach) {
+            if (_selectedCategory == 'Tümü') return true;
+            if (_selectedCategory == 'Dersler') return ach.category == AchievementCategory.lessons;
+            if (_selectedCategory == 'XP') return ach.category == AchievementCategory.xp;
+            if (_selectedCategory == 'Elmas') return ach.category == AchievementCategory.gems;
+            if (_selectedCategory == 'Seri') return ach.category == AchievementCategory.streak;
+            if (_selectedCategory == 'Diller') return ach.category == AchievementCategory.languages;
+            if (_selectedCategory == 'Özel') return ach.category == AchievementCategory.special;
+            return true;
+          }).map((ach) {
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
@@ -316,6 +450,113 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showPromoDialog(BuildContext context) {
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E293B),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Row(
+            children: [
+              Icon(Icons.card_giftcard_rounded, color: Color(0xFFA855F7), size: 24),
+              SizedBox(width: 8),
+              Text('Promosyon & Hile Kodu', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Özel etkinlik, geliştirici veya indirim kodunuzu girerek anında sınırsız can, elmas veya hile modunu aktif edin:',
+                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                decoration: InputDecoration(
+                  hintText: 'Örn: kagan',
+                  hintStyle: const TextStyle(color: Color(0xFF64748B)),
+                  filled: true,
+                  fillColor: const Color(0xFF0F172A),
+                  prefixIcon: const Icon(Icons.key_rounded, color: Color(0xFFA855F7), size: 20),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: Color(0xFF334155)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: Color(0xFFA855F7), width: 2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('İptal', style: TextStyle(color: Color(0xFF94A3B8))),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFA855F7),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () {
+                final text = controller.text.trim();
+                final result = ref.read(userProfileProvider.notifier).applyPromoCode(text);
+                Navigator.pop(dialogContext);
+
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    backgroundColor: const Color(0xFF1E293B),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    title: Row(
+                      children: [
+                        Icon(
+                          result.success ? Icons.stars_rounded : Icons.info_outline_rounded,
+                          color: result.success ? Colors.amber : Colors.redAccent,
+                          size: 26,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          result.success ? 'Tebrikler!' : 'Bilgi',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    content: Text(
+                      result.message,
+                      style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 14, height: 1.4),
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: result.success ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Tamam', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: const Text('Uygula', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

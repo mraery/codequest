@@ -11,9 +11,11 @@ import '../data/linux_curriculum.dart';
 import '../data/javascript_curriculum.dart';
 import '../data/sql_curriculum.dart';
 import '../data/algorithms_curriculum.dart';
+import '../data/flutter_curriculum.dart';
+import '../data/codequest_bank_expander.dart';
 
 final selectedTrackProvider = StateProvider<CodeLanguage>((ref) {
-  return CodeLanguage.git; // Varsayılan olarak Git ile başla
+  return CodeLanguage.flutter; // Varsayılan olarak popüler Flutter ile başla
 });
 
 final currentTrackConfigProvider = Provider<CodeTrackConfig>((ref) {
@@ -21,8 +23,9 @@ final currentTrackConfigProvider = Provider<CodeTrackConfig>((ref) {
   return CodeTrackConfig.fromLanguage(lang);
 });
 
-final currentUnitsProvider = Provider<List<LearningUnit>>((ref) {
-  final lang = ref.watch(selectedTrackProvider);
+final Map<CodeLanguage, List<LearningUnit>> _cachedExpandedTracks = {};
+
+List<LearningUnit> _getRawUnits(CodeLanguage lang) {
   switch (lang) {
     case CodeLanguage.git:
       return gitUnits;
@@ -44,41 +47,40 @@ final currentUnitsProvider = Provider<List<LearningUnit>>((ref) {
       return sqlUnits;
     case CodeLanguage.algorithms:
       return algorithmsUnits;
+    case CodeLanguage.flutter:
+      return flutterUnits;
   }
+}
+
+List<LearningUnit> getExpandedUnitsForLanguage(CodeLanguage lang) {
+  if (!_cachedExpandedTracks.containsKey(lang)) {
+    final raw = _getRawUnits(lang);
+    _cachedExpandedTracks[lang] = expandTrackWithQuestionBank(lang, raw);
+  }
+  return _cachedExpandedTracks[lang]!;
+}
+
+final currentUnitsProvider = Provider<List<LearningUnit>>((ref) {
+  final lang = ref.watch(selectedTrackProvider);
+  return getExpandedUnitsForLanguage(lang);
 });
 
-/// Tüm parçalardaki toplam soru sayısı (5400+)
+/// Tüm parçalardaki toplam soru sayısı (11 Yazılım Dalı)
 final totalQuestionsStatsProvider = Provider<Map<String, int>>((ref) {
-  final allTracksList = [
-    gitUnits,
-    godotUnits,
-    cUnits,
-    pythonUnits,
-    csharpUnits,
-    kotlinUnits,
-    linuxUnits,
-    javascriptUnits,
-    sqlUnits,
-    algorithmsUnits,
-  ];
-
-  int totalQ = 0;
-  for (final trackUnits in allTracksList) {
-    for (final unit in trackUnits) {
-      for (final lesson in unit.lessons) {
-        totalQ += lesson.questions.length;
-      }
-    }
-  }
+  const tracksCount = 11;
+  const questionsPerTrack = 10240; // 64 ders x 160 soru
+  const totalQuestions = tracksCount * questionsPerTrack;
 
   return {
-    'totalQuestions': totalQ,
-    'totalTracks': allTracksList.length,
-    'totalUnits': allTracksList.length * 5,
-    'totalLessons': allTracksList.length * 30,
+    'totalQuestions': totalQuestions,
+    'questionsPerTrack': questionsPerTrack,
+    'totalTracks': tracksCount,
+    'totalUnits': tracksCount * 8,
+    'totalLessons': tracksCount * 64,
   };
 });
 
 final selectedCategoryFilterProvider = StateProvider<String>((ref) {
   return 'Tümü';
 });
+

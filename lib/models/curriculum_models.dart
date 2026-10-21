@@ -80,6 +80,26 @@ class Lesson {
     required this.questions,
     this.isUnitExam = false,
   });
+
+  Lesson copyWith({
+    String? id,
+    String? title,
+    String? description,
+    int? xpReward,
+    int? gemReward,
+    List<Question>? questions,
+    bool? isUnitExam,
+  }) {
+    return Lesson(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      xpReward: xpReward ?? this.xpReward,
+      gemReward: gemReward ?? this.gemReward,
+      questions: questions ?? this.questions,
+      isUnitExam: isUnitExam ?? this.isUnitExam,
+    );
+  }
 }
 
 class LearningUnit {
@@ -158,6 +178,7 @@ class UserProfile {
   final Set<String> completedLessonIds;
   final Map<String, double> lessonScores;
   final bool isPremium;
+  final bool isCheatUnlocked;
   final int questionsAnsweredCount;
   final Set<String> claimedAchievementIds;
 
@@ -171,6 +192,7 @@ class UserProfile {
     this.completedLessonIds = const {},
     this.lessonScores = const {},
     this.isPremium = false,
+    this.isCheatUnlocked = false,
     this.questionsAnsweredCount = 0,
     this.claimedAchievementIds = const {},
   });
@@ -185,6 +207,7 @@ class UserProfile {
     Set<String>? completedLessonIds,
     Map<String, double>? lessonScores,
     bool? isPremium,
+    bool? isCheatUnlocked,
     int? questionsAnsweredCount,
     Set<String>? claimedAchievementIds,
   }) {
@@ -198,8 +221,25 @@ class UserProfile {
       completedLessonIds: completedLessonIds ?? this.completedLessonIds,
       lessonScores: lessonScores ?? this.lessonScores,
       isPremium: isPremium ?? this.isPremium,
+      isCheatUnlocked: isCheatUnlocked ?? this.isCheatUnlocked,
       questionsAnsweredCount: questionsAnsweredCount ?? this.questionsAnsweredCount,
       claimedAchievementIds: claimedAchievementIds ?? this.claimedAchievementIds,
     );
   }
+}
+
+class PromoResult {
+  final bool success;
+  final String message;
+  final bool isCheat;
+  final int? hearts;
+  final int? gems;
+
+  const PromoResult({
+    required this.success,
+    required this.message,
+    this.isCheat = false,
+    this.hearts,
+    this.gems,
+  });
 }

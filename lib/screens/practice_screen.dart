@@ -6,6 +6,8 @@ import '../providers/track_provider.dart';
 import '../widgets/stats_bar.dart';
 import '../widgets/cheat_sheet_sheet.dart';
 import 'quiz_screen.dart';
+import 'dev_reflex_screen.dart';
+import 'must_know_guide_screen.dart';
 
 class PracticeScreen extends ConsumerWidget {
   const PracticeScreen({super.key});
@@ -78,11 +80,11 @@ class PracticeScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    _buildStatPill('10', 'Yazılım Alanı'),
+                    _buildStatPill('11', 'Yazılım Dalı'),
                     const SizedBox(width: 8),
-                    _buildStatPill('540', '${track.shortTitle} Sorusu'),
+                    _buildStatPill('10.240', '${track.shortTitle} Sorusu'),
                     const SizedBox(width: 8),
-                    _buildStatPill('30', 'Kapsamlı Ders'),
+                    _buildStatPill('64', 'Ders & Kupa'),
                   ],
                 ),
               ],
@@ -100,18 +102,54 @@ class PracticeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Hatalarını temizle, rastgele sprint yap veya soru havuzunda gezin!',
+            'Hatalarını temizle, hızlı refleks yap veya mülakat kurallarını ezberle!',
             style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
           ),
           const SizedBox(height: 16),
 
-          // 1. Rastgele 10 Soruluk Mega Sprint
+          // 0. Görünce Yapıştır! ⚡ - Kesin Bilmen Gerekenler (Dev Refleks)
           _buildPracticeCard(
             icon: '⚡',
-            title: '${track.shortTitle} Rastgele 10 Soruluk Sprint',
-            description: '540 soru arasından rastgele 10 soru ile kendini sına!',
-            badgeText: 'HIZLI TEST',
+            title: 'Görünce Yapıştır! ⚡ (Dev Refleks)',
+            description: 'Kuralı gör, cevabı anında yapıştır! Big-O, HTTP kodları, Git ve mülakat tuzaklarını 7 saniyede bil.',
+            badgeText: 'YENİ HIZ MODU',
             badgeColor: const Color(0xFFF59E0B),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const DevReflexScreen(),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 14),
+
+          // 1. Kesin Bilmen Gerekenler Rehberi 📖
+          _buildPracticeCard(
+            icon: '📖',
+            title: 'Kesin Bilmen Gerekenler & Mülakat Rehberi',
+            description: 'Yazılımcıların mutlaka bilmesi gereken 50+ mimari kural, Big-O tablosu ve kod hile kağıtları.',
+            badgeText: 'MÜLAKAT REHBERİ',
+            badgeColor: const Color(0xFF38BDF8),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const MustKnowGuideScreen(),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 14),
+
+          // 2. Rastgele 10 Soruluk Mega Sprint
+          _buildPracticeCard(
+            icon: '🚀',
+            title: '${track.shortTitle} 10.000+ Havuzdan Hızlı Sprint',
+            description: 'Genişletilmiş devasa soru havuzundan rastgele 10 soru ile kendini sına!',
+            badgeText: 'HIZLI TEST',
+            badgeColor: const Color(0xFF10B981),
             onTap: () {
               final randomLesson = _generateRandomSprintLesson(allUnits, track.shortTitle);
               if (randomLesson != null) {

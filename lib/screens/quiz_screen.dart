@@ -69,8 +69,28 @@ class QuizScreen extends ConsumerWidget {
             ),
           ),
           actions: [
+            // Soru Sayacı (örn. 3 / 10)
             Padding(
-              padding: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.only(right: 4),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF334155)),
+                ),
+                child: Text(
+                  '${quizState.currentQuestionIndex + 1} / ${quizState.totalQuestions}',
+                  style: const TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 16, left: 4),
               child: Row(
                 children: [
                   const Text('❤️', style: TextStyle(fontSize: 16)),
@@ -225,6 +245,7 @@ class QuizScreen extends ConsumerWidget {
     }
 
     // Cevap Henüz Kontrol Edilmedi
+    final bool isConceptCard = state.currentQuestion.type == QuestionType.conceptCard;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -233,11 +254,142 @@ class QuizScreen extends ConsumerWidget {
           top: BorderSide(color: Color(0xFF334155), width: 1),
         ),
       ),
-      child: DuoButton(
-        text: state.currentQuestion.type == QuestionType.conceptCard ? 'DEVAM ET' : 'KONTROL ET',
-        backgroundColor: const Color(0xFF10B981),
-        shadowColor: const Color(0xFF059669),
-        onPressed: state.canCheckAnswer ? notifier.checkAnswer : null,
+      child: isConceptCard
+          ? DuoButton(
+              text: 'DEVAM ET',
+              backgroundColor: const Color(0xFF10B981),
+              shadowColor: const Color(0xFF059669),
+              onPressed: notifier.checkAnswer,
+            )
+          : Row(
+              children: [
+                if (userProfile.isCheatUnlocked) ...[
+                  // OTO-ÇÖZ HİLE BUTONU (Sadece kagan promosyon koduyla aktif olur!)
+                  Expanded(
+                    flex: 2,
+                    child: GestureDetector(
+                      onTap: () {
+                        notifier.autoSolve();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('⚡ [Kagan Hilesi] Doğru cevap otomatik çözüldü!'),
+                            duration: Duration(seconds: 1),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Color(0xFF7C3AED),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 54,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF7C3AED), Color(0xFF9333EA)],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.amber, width: 1.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF7C3AED).withValues(alpha: 0.4),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.bolt_rounded, color: Colors.amber, size: 18),
+                              SizedBox(width: 4),
+                              Text(
+                                'OTO-ÇÖZ',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 12.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                // GEÇ Butonu
+                Expanded(
+                  flex: 2,
+                  child: GestureDetector(
+                    onTap: () => _showSkipConfirmation(context, notifier, ref),
+                    child: Container(
+                      height: 54,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFF475569), width: 1.5),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'GEÇ ⏭',
+                          style: TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // KONTROL ET Butonu
+                Expanded(
+                  flex: 4,
+                  child: DuoButton(
+                    text: 'KONTROL ET',
+                    backgroundColor: const Color(0xFF10B981),
+                    shadowColor: const Color(0xFF059669),
+                    onPressed: state.canCheckAnswer ? notifier.checkAnswer : null,
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  void _showSkipConfirmation(BuildContext context, QuizNotifier notifier, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Text('⏭️ Soruyu Geç?', style: TextStyle(color: Colors.white, fontSize: 18)),
+          ],
+        ),
+        content: const Text(
+          'Bu soruyu geçersen yanlış sayılır ve bir can kaybedersin. Yine de geçmek istiyor musun?',
+          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('İptal', style: TextStyle(color: Color(0xFF94A3B8))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF59E0B),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              notifier.skipQuestion();
+            },
+            child: const Text('Geç ⏭'),
+          ),
+        ],
       ),
     );
   }

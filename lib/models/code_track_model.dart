@@ -11,6 +11,7 @@ enum CodeLanguage {
   javascript,
   sql,
   algorithms,
+  flutter,
 }
 
 class CodeTrackConfig {
@@ -259,6 +260,37 @@ ORDER BY order_count DESC;''',
     return -1''',
   );
 
+  static const CodeTrackConfig flutter = CodeTrackConfig(
+    language: CodeLanguage.flutter,
+    title: 'Flutter & Dart Mobil Geliştirme',
+    shortTitle: 'Flutter',
+    badgeText: 'Flutter 💙',
+    description: 'Widget Ağacı, State Management, Riverpod, Animasyonlar & Cross-Platform',
+    primaryColor: Color(0xFF02569B),
+    secondaryColor: Color(0xFF0175C2),
+    accentColor: Color(0xFF54C5F8),
+    mascotGreeting: 'Mobil ve çoklu platform dünyasına hoş geldin! Flutter ile piksel piksel kusursuz arayüzler kodlamaya hazır mısın? 💙',
+    mascotEmoji: '💙',
+    categories: ['Tümü', 'Dart Temelleri', 'Widget Ağacı & Layout', 'Stateful & Stateless', 'State Management', 'Navigasyon & Rotalar', 'Ağ İstekleri & JSON', 'Animasyonlar & Slivers', 'İleri Seviye & Performans'],
+    fileExtension: '.dart',
+    helloWorldSnippet: '''import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(child: Text('Flutter Harika! 💙')),
+      ),
+    );
+  }
+}''',
+  );
+
   static const List<CodeTrackConfig> allTracks = [
     git,
     godot,
@@ -270,6 +302,7 @@ ORDER BY order_count DESC;''',
     javascript,
     sql,
     algorithms,
+    flutter,
   ];
 
   static CodeTrackConfig fromLanguage(CodeLanguage lang) {
@@ -294,6 +327,8 @@ ORDER BY order_count DESC;''',
         return sql;
       case CodeLanguage.algorithms:
         return algorithms;
+      case CodeLanguage.flutter:
+        return flutter;
     }
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/curriculum_models.dart';
+import '../data/codequest_achievements.dart';
 
 final userProfileProvider =
     StateNotifierProvider<UserProfileNotifier, UserProfile>((ref) {
@@ -23,6 +24,7 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
   static const String _keyPremium = 'cq_is_premium';
   static const String _keyQuestionsAnswered = 'cq_questions_answered';
   static const String _keyClaimedAchievements = 'cq_claimed_achievements';
+  static const String _keyCheat = 'cq_is_cheat_unlocked';
 
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -35,6 +37,7 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
     final completed = prefs.getStringList(_keyCompletedLessons)?.toSet() ?? {};
     final lastDate = prefs.getString(_keyLastDate) ?? _todayString();
     final isPremium = prefs.getBool(_keyPremium) ?? false;
+    final isCheat = prefs.getBool(_keyCheat) ?? false;
     final questionsAnswered = prefs.getInt(_keyQuestionsAnswered) ?? 12;
     final claimed = prefs.getStringList(_keyClaimedAchievements)?.toSet() ?? {};
 
@@ -60,6 +63,7 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
       lessonScores: scores,
       lastActiveDate: lastDate,
       isPremium: isPremium,
+      isCheatUnlocked: isCheat,
       questionsAnsweredCount: questionsAnswered,
       claimedAchievementIds: claimed,
     );
@@ -82,6 +86,7 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
     await prefs.setString(_keyLessonScores, jsonEncode(current.lessonScores));
     await prefs.setString(_keyLastDate, current.lastActiveDate);
     await prefs.setBool(_keyPremium, current.isPremium);
+    await prefs.setBool(_keyCheat, current.isCheatUnlocked);
     await prefs.setInt(_keyQuestionsAnswered, current.questionsAnsweredCount);
   }
 
@@ -129,6 +134,20 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
     _saveToPrefs();
   }
 
+  void addXp(int amount) {
+    if (amount > 0) {
+      state = state.copyWith(xp: state.xp + amount);
+      _saveToPrefs();
+    }
+  }
+
+  void addGems(int amount) {
+    if (amount > 0) {
+      state = state.copyWith(gems: state.gems + amount);
+      _saveToPrefs();
+    }
+  }
+
   void claimAchievement(String achievementId, int gemReward, int xpReward) {
     if (state.claimedAchievementIds.contains(achievementId)) return;
     final newClaimed = Set<String>.from(state.claimedAchievementIds)..add(achievementId);
@@ -153,96 +172,86 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
     final prevId = allLessonIds[index - 1];
     return state.completedLessonIds.contains(prevId);
   }
+
+  void rewardHeartFromAd() {
+    state = state.copyWith(hearts: (state.hearts + 1).clamp(0, state.maxHearts));
+    _saveToPrefs();
+  }
+
+  void activateFreeProPass() {
+    state = state.copyWith(isPremium: true, hearts: state.maxHearts);
+    _saveToPrefs();
+  }
+
+  PromoResult applyPromoCode(String rawCode) {
+    final code = rawCode.trim().toLowerCase();
+    if (code.isEmpty) {
+      return const PromoResult(
+        success: false,
+        message: 'Lütfen bir promosyon veya indirim kodu girin.',
+      );
+    }
+
+    // 🚀 KULLANICININ ÖZEL HİLE & PREMİUM KODU: kagan
+    if (code == 'kagan' || code == 'kagan123') {
+      if (state.isCheatUnlocked || state.isPremium) {
+        state = state.copyWith(
+          isCheatUnlocked: false,
+          isPremium: false,
+          hearts: state.maxHearts,
+        );
+        _saveToPrefs();
+        return const PromoResult(
+          success: true,
+          isCheat: false,
+          message: '🛡️ Kagan Hile & Premium Kapatıldı!\n'
+              '❤️ Tekrardan 5 can ile normal canlı moda döndün.\n'
+              '⚡ Otomatik kod çözme ve sınırsız can kapatıldı.',
+        );
+      } else {
+        state = state.copyWith(
+          hearts: state.maxHearts,
+          gems: 300,
+          isPremium: true,
+          isCheatUnlocked: true,
+        );
+        _saveToPrefs();
+        return PromoResult(
+          success: true,
+          isCheat: true,
+          hearts: state.maxHearts,
+          gems: 300,
+          message: '🔥 Kagan Özel Geliştirici Hilesi Devreye Girdi!\n'
+              '❤️ Sınırsız Can & Pro Pass Aktif Edildi!\n'
+              '💎 300 Elmas Hesabına Yüklendi!\n'
+              '⚡ Quizlerde OTO-ÇÖZ Hile Butonu Aktif Edildi!\n'
+              '(Kapatmak için tekrar "kagan" veya "kapat" yazabilirsin)',
+        );
+      }
+    }
+
+    if (code == 'kapat' || code == 'premium kapat' || code == 'hilekapat') {
+      state = state.copyWith(
+        isPremium: false,
+        isCheatUnlocked: false,
+        hearts: state.maxHearts,
+      );
+      _saveToPrefs();
+      return const PromoResult(
+        success: true,
+        isCheat: false,
+        message: '🔒 Hileler ve Premium Kapatıldı. Standart canlı moda geçildi.',
+      );
+    }
+
+    return const PromoResult(
+      success: false,
+      message: 'Geçersiz promosyon kodu. Doğru kodu girdiğinizden emin olun.',
+    );
+  }
 }
 
 final achievementsProvider = Provider<List<Achievement>>((ref) {
   final profile = ref.watch(userProfileProvider);
-  final completedCount = profile.completedLessonIds.length;
-
-  return [
-    Achievement(
-      id: 'first_code',
-      title: 'İlk Kod Satırı',
-      desc: 'İlk yazılım dersini başarıyla tamamla.',
-      iconEmoji: '🌱',
-      category: AchievementCategory.lessons,
-      currentProgress: completedCount,
-      maxProgress: 1,
-      tier: 1,
-      gemReward: 20,
-      xpReward: 50,
-      isUnlocked: completedCount >= 1,
-      isClaimed: profile.claimedAchievementIds.contains('first_code'),
-    ),
-    Achievement(
-      id: 'python_apprentice',
-      title: 'Python Çırağı',
-      desc: '3 Python dersini tamamla ve print ustası ol.',
-      iconEmoji: '🐍',
-      category: AchievementCategory.languages,
-      currentProgress: profile.completedLessonIds.where((id) => id.startsWith('py_')).length,
-      maxProgress: 3,
-      tier: 1,
-      gemReward: 30,
-      xpReward: 80,
-      isUnlocked: profile.completedLessonIds.where((id) => id.startsWith('py_')).length >= 3,
-      isClaimed: profile.claimedAchievementIds.contains('python_apprentice'),
-    ),
-    Achievement(
-      id: 'streak_3',
-      title: 'Alev Alan Parmaklar',
-      desc: '3 günlük aralıksız kodlama serisine ulaş.',
-      iconEmoji: '🔥',
-      category: AchievementCategory.streak,
-      currentProgress: profile.streak,
-      maxProgress: 3,
-      tier: 1,
-      gemReward: 40,
-      xpReward: 100,
-      isUnlocked: profile.streak >= 3,
-      isClaimed: profile.claimedAchievementIds.contains('streak_3'),
-    ),
-    Achievement(
-      id: 'null_hunter',
-      title: 'Null Avcısı',
-      desc: 'Kotlin Null-Safety ünitesini başarıyla geç.',
-      iconEmoji: '🛡️',
-      category: AchievementCategory.languages,
-      currentProgress: profile.completedLessonIds.where((id) => id.startsWith('kt_')).length,
-      maxProgress: 2,
-      tier: 1,
-      gemReward: 35,
-      xpReward: 90,
-      isUnlocked: profile.completedLessonIds.where((id) => id.startsWith('kt_')).length >= 2,
-      isClaimed: profile.claimedAchievementIds.contains('null_hunter'),
-    ),
-    Achievement(
-      id: 'csharp_architect',
-      title: 'C# Mimarı',
-      desc: 'C# OOP ve LINQ derslerini başarıyla tamamla.',
-      iconEmoji: '⚙️',
-      category: AchievementCategory.languages,
-      currentProgress: profile.completedLessonIds.where((id) => id.startsWith('cs_')).length,
-      maxProgress: 2,
-      tier: 1,
-      gemReward: 35,
-      xpReward: 90,
-      isUnlocked: profile.completedLessonIds.where((id) => id.startsWith('cs_')).length >= 2,
-      isClaimed: profile.claimedAchievementIds.contains('csharp_architect'),
-    ),
-    Achievement(
-      id: 'xp_500',
-      title: 'Senior Yolunda',
-      desc: 'Toplam 500 XP puanı topla.',
-      iconEmoji: '⭐',
-      category: AchievementCategory.xp,
-      currentProgress: profile.xp,
-      maxProgress: 500,
-      tier: 2,
-      gemReward: 50,
-      xpReward: 150,
-      isUnlocked: profile.xp >= 500,
-      isClaimed: profile.claimedAchievementIds.contains('xp_500'),
-    ),
-  ];
+  return buildAllAchievements(profile);
 });

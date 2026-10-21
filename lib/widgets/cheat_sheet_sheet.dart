@@ -110,7 +110,7 @@ class CheatSheetSheet extends StatelessWidget {
                           SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Bu hile kağıdındaki kod şablonlarını Kod Laboratuvarı sekmesinde özgürce çalıştırıp deneyebilirsin!',
+                              'Bu hile kağıdındaki kod şablonlarını derslerde ve pratik modunda pekiştirebilirsin!',
                               style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12.5),
                             ),
                           ),

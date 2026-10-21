@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import 'playground_screen.dart';
 import 'practice_screen.dart';
 import 'leaderboard_screen.dart';
 import 'profile_screen.dart';
@@ -17,7 +16,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    PlaygroundScreen(),
     PracticeScreen(),
     LeaderboardScreen(),
     ProfileScreen(),
@@ -50,10 +48,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.route_rounded),
               label: 'Patika',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.code_rounded),
-              label: 'Laboratuvar',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.bolt_rounded),

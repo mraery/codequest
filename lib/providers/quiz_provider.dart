@@ -96,7 +96,32 @@ final quizProvider = StateNotifierProvider.family<QuizNotifier, QuizState, Lesso
 class QuizNotifier extends StateNotifier<QuizState> {
   final Ref _ref;
 
-  QuizNotifier(this._ref, Lesson lesson) : super(QuizState(lesson: lesson));
+  QuizNotifier(this._ref, Lesson lesson) : super(QuizState(lesson: prepareSessionLesson(lesson)));
+
+  static Lesson prepareSessionLesson(Lesson rawLesson) {
+    if (rawLesson.questions.length <= 10) {
+      return rawLesson;
+    }
+
+    // Varsa 1 adet hap bilgi/kural kartı ekle
+    final conceptCards = rawLesson.questions
+        .where((q) => q.type == QuestionType.conceptCard)
+        .toList();
+    final practicalQuestions = rawLesson.questions
+        .where((q) => q.type != QuestionType.conceptCard)
+        .toList()
+      ..shuffle();
+
+    final sessionQuestions = <Question>[];
+    if (conceptCards.isNotEmpty) {
+      sessionQuestions.add(conceptCards.first);
+    }
+
+    final needed = 10 - sessionQuestions.length;
+    sessionQuestions.addAll(practicalQuestions.take(needed));
+
+    return rawLesson.copyWith(questions: sessionQuestions);
+  }
 
   void selectOption(int index) {
     if (state.isAnswerChecked) return;
@@ -176,6 +201,82 @@ class QuizNotifier extends StateNotifier<QuizState> {
       correctAnswersCount: correct ? state.correctAnswersCount + 1 : state.correctAnswersCount,
       wrongAnswersCount: !correct ? state.wrongAnswersCount + 1 : state.wrongAnswersCount,
     );
+  }
+
+  /// Otomatik doğru cevabı işaretler ve kontrol eder (Hile Modu)
+  void autoSolve() {
+    if (state.isAnswerChecked) return;
+    final q = state.currentQuestion;
+    switch (q.type) {
+      case QuestionType.conceptCard:
+        checkAnswer();
+        break;
+      case QuestionType.multipleChoice:
+      case QuestionType.codeOutput:
+        if (q.correctIndex != null) {
+          selectOption(q.correctIndex!);
+          checkAnswer();
+        }
+        break;
+      case QuestionType.fillInTheBlank:
+        if (q.correctBlankAnswer != null) {
+          selectBlank(q.correctBlankAnswer!);
+          checkAnswer();
+        }
+        break;
+      case QuestionType.trueFalse:
+        if (q.isTrue != null) {
+          selectTrueFalse(q.isTrue!);
+          checkAnswer();
+        }
+        break;
+      case QuestionType.matching:
+        if (q.matchingPairs != null) {
+          final pairs = <String, String>{};
+          for (final pair in q.matchingPairs!) {
+            pairs[pair.left] = pair.right;
+          }
+          state = state.copyWith(selectedPairs: pairs, clearActivePair: true);
+          checkAnswer();
+        }
+        break;
+    }
+  }
+
+  /// Soruyu geçer — yanlış sayılır, can düşer, sonraki soruya geçer
+  void skipQuestion() {
+    if (state.isAnswerChecked) return;
+    // Can düş
+    _ref.read(userProfileProvider.notifier).loseHeart();
+    // Yanlış sayısı artar
+    final nextIndex = state.currentQuestionIndex + 1;
+    if (nextIndex >= state.totalQuestions) {
+      final total = state.totalQuestions;
+      final correct = state.correctAnswersCount;
+      final score = total > 0 ? (correct / total) * 100 : 0.0;
+      _ref.read(userProfileProvider.notifier).completeLesson(
+        lessonId: state.lesson.id,
+        xpEarned: state.lesson.xpReward,
+        gemsEarned: state.lesson.gemReward,
+        score: score,
+      );
+      state = state.copyWith(
+        wrongAnswersCount: state.wrongAnswersCount + 1,
+        isLessonFinished: true,
+      );
+    } else {
+      state = state.copyWith(
+        currentQuestionIndex: nextIndex,
+        wrongAnswersCount: state.wrongAnswersCount + 1,
+        clearSelectedOption: true,
+        clearSelectedBlank: true,
+        clearTrueFalse: true,
+        selectedPairs: {},
+        clearActivePair: true,
+        isAnswerChecked: false,
+        isCorrect: false,
+      );
+    }
   }
 
   void nextQuestion() {
