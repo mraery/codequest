@@ -29,6 +29,7 @@ class MatchingCodePairsView extends StatelessWidget {
     final rightItems = pairs.map((p) => p.right).toList();
 
     return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 60),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

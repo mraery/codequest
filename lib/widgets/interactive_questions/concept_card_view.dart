@@ -10,6 +10,7 @@ class ConceptCardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 60),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
