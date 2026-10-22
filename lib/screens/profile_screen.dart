@@ -1,3 +1,4 @@
+import '../widgets/premium_purchase_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_provider.dart';
@@ -85,7 +86,65 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
+
+          // Pro VIP Membership Banner
+          InkWell(
+            onTap: () => PremiumPurchaseSheet.show(context, ref),
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: profile.isPremium
+                      ? [const Color(0xFF065F46), const Color(0xFF047857)]
+                      : [const Color(0xFF0369A1), const Color(0xFF0284C7)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: (profile.isPremium ? const Color(0xFF10B981) : const Color(0xFF0284C7)).withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    profile.isPremium ? Icons.workspace_premium_rounded : Icons.star_rounded,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          profile.isPremium ? 'CodeQuest Pro Aktif 👑' : 'CodeQuest Pro\'ya Geç ⚡',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          profile.isPremium
+                              ? 'Sınırsız can ve reklamsız deneyim aktif.'
+                              : 'Sınırsız can, sıfır reklam ve 10 yazılım dili.',
+                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 16),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
 
           // Promo Code Banner
           Container(

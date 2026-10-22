@@ -178,9 +178,22 @@ class UserProfileNotifier extends StateNotifier<UserProfile> {
     _saveToPrefs();
   }
 
-  void activateFreeProPass() {
+  void activatePremium() {
     state = state.copyWith(isPremium: true, hearts: state.maxHearts);
     _saveToPrefs();
+  }
+
+  void deactivatePremium() {
+    state = state.copyWith(
+      isPremium: false,
+      isCheatUnlocked: false,
+      hearts: state.maxHearts,
+    );
+    _saveToPrefs();
+  }
+
+  void activateFreeProPass() {
+    activatePremium();
   }
 
   PromoResult applyPromoCode(String rawCode) {

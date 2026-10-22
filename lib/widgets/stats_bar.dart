@@ -1,3 +1,4 @@
+import 'premium_purchase_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/code_track_model.dart';
@@ -513,6 +514,40 @@ class StatsBar extends ConsumerWidget implements PreferredSizeWidget {
                         ),
                       ),
                       Text('50 💎', style: TextStyle(color: profile.gems >= 50 ? const Color(0xFF06B6D4) : Colors.grey, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // CodeQuest Pro VIP
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  PremiumPurchaseSheet.show(context, ref);
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF0284C7), Color(0xFF0369A1)],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 24),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('CodeQuest Pro VIP 👑', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5)),
+                            Text('Sınırsız Can & Sıfır Reklam', style: TextStyle(color: Color(0xFFBAE6FD), fontSize: 11.5)),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
                     ],
                   ),
                 ),
