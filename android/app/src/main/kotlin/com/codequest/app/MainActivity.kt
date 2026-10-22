@@ -1,4 +1,4 @@
-package com.example.codequest
+package com.codequest.app
 
 import io.flutter.embedding.android.FlutterActivity
 
